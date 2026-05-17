@@ -39,29 +39,26 @@ abstract class AppDatabase : RoomDatabase() {
                     "pixel_erp_db"
                 )
                 .fallbackToDestructiveMigration()
-                .addCallback(object : RoomDatabase.Callback() {
-                    override fun onOpen(db: SupportSQLiteDatabase) {
-                        super.onOpen(db)
-                        INSTANCE?.let { database ->
-                            CoroutineScope(Dispatchers.IO).launch {
-                                val usuarioDao = database.usuarioDao()
-                                if (usuarioDao.contarUsuarios() == 0) {
-                                    usuarioDao.insertar(
-                                        Usuario(
-                                            nombre = "Administrador",
-                                            usuario = "admin",
-                                            contrasena = "admin123",
-                                            rol = Rol.ADMINISTRADOR,
-                                            activo = true
-                                        )
-                                    )
-                                }
-                            }
-                        }
-                    }
-                })
                 .build()
+
                 INSTANCE = instance
+
+                // Asegurar usuario admin al obtener la base de datos
+                CoroutineScope(Dispatchers.IO).launch {
+                    val usuarioDao = instance.usuarioDao()
+                    if (usuarioDao.contarUsuarios() == 0) {
+                        usuarioDao.insertar(
+                            Usuario(
+                                nombre = "Administrador",
+                                usuario = "admin",
+                                contrasena = "admin123",
+                                rol = Rol.ADMINISTRADOR,
+                                activo = true
+                            )
+                        )
+                    }
+                }
+
                 instance
             }
         }
