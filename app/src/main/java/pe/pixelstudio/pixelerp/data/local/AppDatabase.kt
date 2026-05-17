@@ -40,8 +40,8 @@ abstract class AppDatabase : RoomDatabase() {
                 )
                 .fallbackToDestructiveMigration()
                 .addCallback(object : RoomDatabase.Callback() {
-                    override fun onCreate(db: SupportSQLiteDatabase) {
-                        super.onCreate(db)
+                    override fun onOpen(db: SupportSQLiteDatabase) {
+                        super.onOpen(db)
                         INSTANCE?.let { database ->
                             CoroutineScope(Dispatchers.IO).launch {
                                 val usuarioDao = database.usuarioDao()
