@@ -1,5 +1,6 @@
 package pe.pixelstudio.pixelerp
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,11 +19,12 @@ class MainActivity : ComponentActivity() {
 
         val database = AppDatabase.getDatabase(this)
         val repository = UsuarioRepository(database.usuarioDao())
+        val sharedPrefs = getSharedPreferences("pixel_erp_prefs", Context.MODE_PRIVATE)
 
         @Suppress("UNCHECKED_CAST")
         val loginViewModel = ViewModelProvider(this, object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return LoginViewModel(repository) as T
+                return LoginViewModel(repository, sharedPrefs) as T
             }
         })[LoginViewModel::class.java]
 
