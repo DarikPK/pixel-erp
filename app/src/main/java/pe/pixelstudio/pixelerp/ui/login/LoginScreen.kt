@@ -3,6 +3,7 @@ package pe.pixelstudio.pixelerp.ui.login
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
@@ -59,6 +60,18 @@ fun LoginScreen(
             )
 
             OutlinedTextField(
+                value = viewModel.nombreNegocio,
+                onValueChange = { viewModel.nombreNegocio = it },
+                label = { Text("Nombre del Negocio") },
+                modifier = Modifier.fillMaxWidth(),
+                leadingIcon = { Icon(Icons.Default.Business, contentDescription = null) },
+                singleLine = true,
+                shape = MaterialTheme.shapes.medium
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
                 value = viewModel.usuario,
                 onValueChange = { viewModel.usuario = it },
                 label = { Text("Usuario") },
@@ -110,7 +123,7 @@ fun LoginScreen(
                     onCheckedChange = { viewModel.recordarSesion = it }
                 )
                 Text(
-                    text = "Recordar usuario y contraseña",
+                    text = "Recordar sesión",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onBackground
                 )
