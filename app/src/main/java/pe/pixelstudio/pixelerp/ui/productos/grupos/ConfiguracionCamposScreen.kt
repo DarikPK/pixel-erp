@@ -120,12 +120,17 @@ fun AgregarCampoDialog(
     var nombre by remember { mutableStateOf("") }
     var tipoDato by remember { mutableStateOf(TipoDato.TEXTO) }
     var obligatorio by remember { mutableStateOf(false) }
+    var prefijo by remember { mutableStateOf("") }
+    var sufijo by remember { mutableStateOf("") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Nuevo Campo") },
+        title = { Text("Configurar Campo") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 OutlinedTextField(
                     value = nombre,
                     onValueChange = { nombre = it },
@@ -140,6 +145,23 @@ fun AgregarCampoDialog(
                     Checkbox(checked = obligatorio, onCheckedChange = { obligatorio = it })
                     Text("¿Es obligatorio?")
                 }
+
+                HorizontalDivider()
+                Text("Formato Visual (Opcional)", style = MaterialTheme.typography.labelLarge)
+
+                OutlinedTextField(
+                    value = prefijo,
+                    onValueChange = { prefijo = it },
+                    label = { Text("Prefijo (ej. S/ )") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = sufijo,
+                    onValueChange = { sufijo = it },
+                    label = { Text("Sufijo (ej. Kg)") },
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         },
         confirmButton = {
@@ -151,7 +173,9 @@ fun AgregarCampoDialog(
                         tipoDato = tipoDato,
                         obligatorio = obligatorio,
                         orden = 0,
-                        esPredefinido = false
+                        esPredefinido = false,
+                        prefijo = prefijo.ifBlank { null },
+                        sufijo = sufijo.ifBlank { null }
                     )
                 )
             }) { Text("Agregar") }

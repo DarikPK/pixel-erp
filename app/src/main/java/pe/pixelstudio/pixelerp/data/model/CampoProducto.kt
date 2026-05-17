@@ -32,5 +32,8 @@ data class CampoProducto(
     val cantidadDecimales: Int? = null,
     val moneda: Moneda? = null,
     val opcionesLista: List<String>? = null,
+    val prefijo: String? = null,
+    val sufijo: String? = null,
+    val valorPorDefecto: String? = null,
     val fechaCreacion: Long = System.currentTimeMillis()
 )

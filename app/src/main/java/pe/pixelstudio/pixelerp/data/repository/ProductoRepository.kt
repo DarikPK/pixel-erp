@@ -17,6 +17,13 @@ class ProductoRepository(private val productoDao: ProductoDao) {
         productoDao.actualizarGrupo(grupo)
     }
 
+    suspend fun guardarGrupoConCampos(grupo: GrupoProducto, campos: List<CampoProducto>) {
+        val grupoId = productoDao.insertarGrupo(grupo).toInt()
+        campos.forEach { campo ->
+            productoDao.insertarCampo(campo.copy(grupoProductoId = grupoId))
+        }
+    }
+
     // Campos
     fun obtenerCamposPorGrupo(grupoId: Int): Flow<List<CampoProducto>> {
         return productoDao.obtenerCamposPorGrupo(grupoId)

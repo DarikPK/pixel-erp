@@ -134,12 +134,23 @@ fun DynamicFormField(
     valor: Any,
     onValueChange: (Any) -> Unit
 ) {
-    // Implementación simplificada para esta fase
+    val keyboardType = when (campo.tipoDato) {
+        TipoDato.ENTERO, TipoDato.DECIMAL, TipoDato.MONEDA -> androidx.compose.ui.text.input.KeyboardType.Number
+        TipoDato.FECHA -> androidx.compose.ui.text.input.KeyboardType.Number
+        else -> androidx.compose.ui.text.input.KeyboardType.Text
+    }
+
     OutlinedTextField(
         value = valor.toString(),
         onValueChange = { onValueChange(it) },
-        label = { Text("${campo.nombreCampo}${if (campo.obligatorio) " *" else ""}") },
+        label = { Text(campo.nombreCampo) },
         modifier = Modifier.fillMaxWidth(),
-        supportingText = { if (campo.obligatorio) Text("Obligatorio") }
+        prefix = if (campo.prefijo != null) { { Text(campo.prefijo) } } else null,
+        suffix = if (campo.sufijo != null) { { Text(campo.sufijo) } } else null,
+        supportingText = {
+            if (campo.obligatorio) Text("Obligatorio", color = MaterialTheme.colorScheme.error)
+        },
+        isError = campo.obligatorio && valor.toString().isBlank(),
+        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = keyboardType)
     )
 }

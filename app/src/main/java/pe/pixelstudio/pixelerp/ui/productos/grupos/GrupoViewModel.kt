@@ -1,6 +1,7 @@
 package pe.pixelstudio.pixelerp.ui.productos.grupos
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -9,8 +10,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import pe.pixelstudio.pixelerp.data.model.CampoProducto
-import pe.pixelstudio.pixelerp.data.model.GrupoProducto
+import pe.pixelstudio.pixelerp.data.model.*
 import pe.pixelstudio.pixelerp.data.repository.ProductoRepository
 
 class GrupoViewModel(private val repository: ProductoRepository) : ViewModel() {
@@ -22,17 +22,29 @@ class GrupoViewModel(private val repository: ProductoRepository) : ViewModel() {
     var descripcionGrupo by mutableStateOf("")
     var grupoActivo by mutableStateOf(true)
 
+    // Lista temporal de campos para la creación del grupo
+    val camposTemporales = mutableStateListOf<CampoProducto>()
+
+    fun agregarCampoTemporal(campo: CampoProducto) {
+        camposTemporales.add(campo.copy(orden = camposTemporales.size))
+    }
+
+    fun removerCampoTemporal(index: Int) {
+        if (index in camposTemporales.indices) {
+            camposTemporales.removeAt(index)
+        }
+    }
+
     fun guardarGrupo(onSuccess: () -> Unit) {
         if (nombreGrupo.isBlank()) return
 
         viewModelScope.launch {
-            repository.insertarGrupo(
-                GrupoProducto(
-                    nombre = nombreGrupo,
-                    descripcion = descripcionGrupo,
-                    activo = grupoActivo
-                )
+            val grupo = GrupoProducto(
+                nombre = nombreGrupo,
+                descripcion = descripcionGrupo,
+                activo = grupoActivo
             )
+            repository.guardarGrupoConCampos(grupo, camposTemporales.toList())
             resetForm()
             onSuccess()
         }
