@@ -186,24 +186,24 @@ fun AgregarCampoDialog(
     )
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TipoDatoSelector(selected: TipoDato, onSelected: (TipoDato) -> Unit) {
-    // Versión simple con chips para esta fase
-    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-        TipoDato.values().take(4).forEach { tipo ->
+    FlowRow(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        TipoDato.values().forEach { tipo ->
             FilterChip(
                 selected = selected == tipo,
                 onClick = { onSelected(tipo) },
-                label = { Text(tipo.name.lowercase().replaceFirstChar { it.uppercase() }, fontSize = 10.sp) }
-            )
-        }
-    }
-    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-        TipoDato.values().drop(4).forEach { tipo ->
-            FilterChip(
-                selected = selected == tipo,
-                onClick = { onSelected(tipo) },
-                label = { Text(tipo.name.lowercase().replaceFirstChar { it.uppercase() }, fontSize = 10.sp) }
+                label = {
+                    Text(
+                        text = tipo.name.lowercase().replaceFirstChar { it.uppercase() },
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                }
             )
         }
     }
