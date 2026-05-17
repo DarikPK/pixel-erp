@@ -1,58 +1,47 @@
 package pe.pixelstudio.pixelerp
 
-import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import pe.pixelstudio.pixelerp.data.local.AppDatabase
-import pe.pixelstudio.pixelerp.data.repository.ProductoRepository
-import pe.pixelstudio.pixelerp.data.repository.UsuarioRepository
-import pe.pixelstudio.pixelerp.navigation.AppNavigation
-import pe.pixelstudio.pixelerp.ui.login.LoginViewModel
-import pe.pixelstudio.pixelerp.ui.productos.grupos.GrupoViewModel
-import pe.pixelstudio.pixelerp.ui.productos.lista.ProductoViewModel
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import pe.pixelstudio.pixelerp.ui.theme.PixelERPTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val database = AppDatabase.getDatabase(this)
-        val usuarioRepository = UsuarioRepository(database.usuarioDao())
-        val productoRepository = ProductoRepository(database.productoDao())
-        val sharedPrefs = getSharedPreferences("pixel_erp_prefs", Context.MODE_PRIVATE)
-
-        @Suppress("UNCHECKED_CAST")
-        val factory = object : ViewModelProvider.Factory {
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return when {
-                    modelClass.isAssignableFrom(LoginViewModel::class.java) ->
-                        LoginViewModel(usuarioRepository, sharedPrefs) as T
-                    modelClass.isAssignableFrom(GrupoViewModel::class.java) ->
-                        GrupoViewModel(productoRepository) as T
-                    modelClass.isAssignableFrom(ProductoViewModel::class.java) ->
-                        ProductoViewModel(productoRepository) as T
-                    else -> throw IllegalArgumentException("Unknown ViewModel class")
-                }
-            }
-        }
-
-        val loginViewModel = ViewModelProvider(this, factory)[LoginViewModel::class.java]
-        val grupoViewModel = ViewModelProvider(this, factory)[GrupoViewModel::class.java]
-        val productoViewModel = ViewModelProvider(this, factory)[ProductoViewModel::class.java]
-
         enableEdgeToEdge()
         setContent {
             PixelERPTheme {
-                AppNavigation(
-                    loginViewModel = loginViewModel,
-                    grupoViewModel = grupoViewModel,
-                    productoViewModel = productoViewModel
-                )
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    Greeting(
+                        name = "Android",
+                        modifier = Modifier.padding(innerPadding)
+                    )
+                }
             }
         }
+    }
+}
+
+@Composable
+fun Greeting(name: String, modifier: Modifier = Modifier) {
+    Text(
+        text = "Hello $name!",
+        modifier = modifier
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+    PixelERPTheme {
+        Greeting("Android")
     }
 }
