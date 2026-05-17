@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import pe.pixelstudio.pixelerp.data.model.CampoProducto
 import pe.pixelstudio.pixelerp.data.model.TipoDato
 import pe.pixelstudio.pixelerp.data.model.Moneda
@@ -181,5 +182,3 @@ fun TipoDatoSelector(selected: TipoDato, onSelected: (TipoDato) -> Unit) {
         }
     }
 }
-
-import androidx.compose.ui.unit.sp
