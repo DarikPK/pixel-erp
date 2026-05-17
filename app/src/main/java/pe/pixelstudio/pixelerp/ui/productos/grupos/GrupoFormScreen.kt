@@ -1,8 +1,10 @@
 package pe.pixelstudio.pixelerp.ui.productos.grupos
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -177,13 +179,15 @@ fun PredefinidosDialog(onDismiss: () -> Unit, onSelect: (CampoProducto) -> Unit)
         onDismissRequest = onDismiss,
         title = { Text("Elegir Campo Predefinido") },
         text = {
-            LazyColumn(modifier = Modifier.heightIn(max = 400.dp)) {
-                items(PlantillasCampos.predefinidos) { plantilla ->
-                    ListItem(
-                        headlineContent = { Text(plantilla.nombreCampo) },
-                        supportingContent = { Text(plantilla.tipoDato.name.lowercase()) },
-                        modifier = Modifier.clickable { onSelect(plantilla) }
-                    )
+            Box(modifier = Modifier.heightIn(max = 400.dp)) {
+                LazyColumn {
+                    items(PlantillasCampos.predefinidos) { plantilla ->
+                        ListItem(
+                            headlineContent = { Text(plantilla.nombreCampo) },
+                            supportingContent = { Text(plantilla.tipoDato.name.lowercase()) },
+                            modifier = Modifier.clickable { onSelect(plantilla) }
+                        )
+                    }
                 }
             }
         },
