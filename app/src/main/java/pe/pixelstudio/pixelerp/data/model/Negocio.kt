@@ -1,9 +1,11 @@
 package pe.pixelstudio.pixelerp.data.model
 
+import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.ServerTimestamp
 import java.util.Date
 
 data class Negocio(
+    @DocumentId
     val id: String = "",
     val nombreComercial: String = "",
     val razonSocial: String = "",
