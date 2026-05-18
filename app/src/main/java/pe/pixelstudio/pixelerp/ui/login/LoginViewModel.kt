@@ -66,7 +66,7 @@ class LoginViewModel(
                         error = "El usuario está inactivo"
                     } else {
                         val hashedPass = firebaseRepository.hashPassword(contrasenaInput)
-                        if (user.passwordHash != hashedPass) {
+                        if (user.passwordHash.trim() != hashedPass) {
                             error = "Contraseña incorrecta"
                         } else {
                             // Login Exitoso
