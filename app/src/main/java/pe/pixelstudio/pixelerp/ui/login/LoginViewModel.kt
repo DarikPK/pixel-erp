@@ -35,7 +35,11 @@ class LoginViewModel(
     }
 
     fun onLoginClick() {
-        if (nombreNegocio.isBlank() || usuario.isBlank() || contrasena.isBlank()) {
+        val negocioInput = nombreNegocio.trim()
+        val usuarioInput = usuario.trim()
+        val contrasenaInput = contrasena.trim()
+
+        if (negocioInput.isBlank() || usuarioInput.isBlank() || contrasenaInput.isBlank()) {
             error = "Por favor, completa todos los campos"
             return
         }
@@ -45,7 +49,7 @@ class LoginViewModel(
             error = null
 
             try {
-                val negocio = firebaseRepository.getNegocioPorNombre(nombreNegocio)
+                val negocio = firebaseRepository.getNegocioPorNombre(negocioInput)
 
                 if (negocio == null) {
                     error = "El negocio no existe"
@@ -54,14 +58,14 @@ class LoginViewModel(
                 } else if (negocio.fechaFinSuscripcion != null && negocio.fechaFinSuscripcion < System.currentTimeMillis()) {
                     error = "La suscripción ha expirado"
                 } else {
-                    val user = firebaseRepository.getUsuarioEnNegocio(negocio.id, usuario)
+                    val user = firebaseRepository.getUsuarioEnNegocio(negocio.id, usuarioInput)
 
                     if (user == null) {
                         error = "Usuario no encontrado en este negocio"
                     } else if (!user.activo) {
                         error = "El usuario está inactivo"
                     } else {
-                        val hashedPass = firebaseRepository.hashPassword(contrasena)
+                        val hashedPass = firebaseRepository.hashPassword(contrasenaInput)
                         if (user.passwordHash != hashedPass) {
                             error = "Contraseña incorrecta"
                         } else {

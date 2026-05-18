@@ -8,7 +8,7 @@ import java.security.MessageDigest
 
 class FirebaseRepository {
     private val firestore = FirebaseFirestore.getInstance()
-    private val negociosCollection = firestore.collection("negocios")
+    private val negociosCollection = firestore.collection("Negocios")
 
     suspend fun getNegocioPorNombre(nombre: String): Negocio? {
         val query = negociosCollection.whereEqualTo("nombreComercial", nombre).get().await()
