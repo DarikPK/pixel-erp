@@ -23,7 +23,8 @@ import pe.pixelstudio.pixelerp.data.model.Moneda
 @Composable
 fun GrupoFormScreen(
     viewModel: GrupoViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onLogout: () -> Unit
 ) {
     var showAddDialog by remember { mutableStateOf(false) }
     var showPredefinedDialog by remember { mutableStateOf(false) }
@@ -40,6 +41,9 @@ fun GrupoFormScreen(
                 actions = {
                     TextButton(onClick = { viewModel.guardarGrupo(onBack) }) {
                         Text("GUARDAR", fontWeight = FontWeight.Bold)
+                    }
+                    IconButton(onClick = onLogout) {
+                        Icon(Icons.Default.ExitToApp, contentDescription = "Cerrar Sesión")
                     }
                 }
             )

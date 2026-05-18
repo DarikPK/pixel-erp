@@ -149,6 +149,19 @@ fun LoginScreen(
                     Text("Ingresar", fontSize = 18.sp)
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedButton(
+                onClick = { viewModel.loginMaster() },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = MaterialTheme.shapes.medium,
+                enabled = !viewModel.estaCargando
+            ) {
+                Text("Acceso Master", fontSize = 18.sp)
+            }
         }
     }
 }

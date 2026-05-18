@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Business
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,7 +24,8 @@ fun NegocioListScreen(
     viewModel: SuperAdminViewModel,
     onCrearNegocio: () -> Unit,
     onEditarNegocio: (Negocio) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onLogout: () -> Unit
 ) {
     LaunchedEffect(Unit) {
         viewModel.cargarNegocios()
@@ -32,7 +34,12 @@ fun NegocioListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Panel Super Admin - Negocios") }
+                title = { Text("Panel Super Admin - Negocios") },
+                actions = {
+                    IconButton(onClick = onLogout) {
+                        Icon(Icons.Default.ExitToApp, contentDescription = "Cerrar Sesión")
+                    }
+                }
             )
         },
         floatingActionButton = {

@@ -28,6 +28,8 @@ class LoginViewModel(
     var usuarioActual by mutableStateOf<Usuario?>(null)
     var negocioActual by mutableStateOf<Negocio?>(null)
 
+    var logoutTriggered by mutableStateOf(false)
+
     init {
         nombreNegocio = prefs.getString("saved_business", "") ?: ""
         usuario = prefs.getString("saved_user", "") ?: ""
@@ -97,5 +99,23 @@ class LoginViewModel(
 
     fun resetLoginStatus() {
         loginExitoso = false
+    }
+
+    fun loginMaster() {
+        nombreNegocio = "Pixel"
+        usuario = "admin"
+        contrasena = "admin123"
+        onLoginClick()
+    }
+
+    fun logout() {
+        usuarioActual = null
+        negocioActual = null
+        loginExitoso = false
+        logoutTriggered = true
+    }
+
+    fun resetLogoutStatus() {
+        logoutTriggered = false
     }
 }

@@ -1,6 +1,7 @@
 package pe.pixelstudio.pixelerp.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -39,6 +40,15 @@ fun AppNavigation(
 ) {
     val navController = rememberNavController()
 
+    LaunchedEffect(loginViewModel.logoutTriggered) {
+        if (loginViewModel.logoutTriggered) {
+            navController.navigate(Screen.Login.route) {
+                popUpTo(0) { inclusive = true }
+            }
+            loginViewModel.resetLogoutStatus()
+        }
+    }
+
     NavHost(
         navController = navController,
         startDestination = Screen.Login.route
@@ -58,7 +68,8 @@ fun AppNavigation(
                 negocio = loginViewModel.negocioActual,
                 usuario = loginViewModel.usuarioActual,
                 onNavigateToProductos = { navController.navigate(Screen.ProductosMenu.route) },
-                onNavigateToSuperAdmin = { navController.navigate(Screen.SuperAdminNegocios.route) }
+                onNavigateToSuperAdmin = { navController.navigate(Screen.SuperAdminNegocios.route) },
+                onLogout = { loginViewModel.logout() }
             )
         }
 
@@ -68,13 +79,15 @@ fun AppNavigation(
                 viewModel = superAdminViewModel,
                 onCrearNegocio = { navController.navigate(Screen.SuperAdminCrearNegocio.route) },
                 onEditarNegocio = { /* TODO */ },
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onLogout = { loginViewModel.logout() }
             )
         }
         composable(Screen.SuperAdminCrearNegocio.route) {
             NegocioFormScreen(
                 viewModel = superAdminViewModel,
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onLogout = { loginViewModel.logout() }
             )
         }
 
@@ -82,7 +95,8 @@ fun AppNavigation(
             pe.pixelstudio.pixelerp.ui.productos.ProductosMenuScreen(
                 onNavigateToGrupos = { navController.navigate(Screen.GruposLista.route) },
                 onNavigateToLista = { navController.navigate(Screen.ProductosLista.route) },
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onLogout = { loginViewModel.logout() }
             )
         }
         composable(Screen.GruposLista.route) {
@@ -90,13 +104,15 @@ fun AppNavigation(
                 viewModel = grupoViewModel,
                 onAddGrupo = { navController.navigate(Screen.GruposForm.route) },
                 onConfigurarCampos = { grupoId -> navController.navigate(Screen.GrupoDetalle.createRoute(grupoId)) },
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onLogout = { loginViewModel.logout() }
             )
         }
         composable(Screen.GruposForm.route) {
             pe.pixelstudio.pixelerp.ui.productos.grupos.GrupoFormScreen(
                 viewModel = grupoViewModel,
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onLogout = { loginViewModel.logout() }
             )
         }
         composable(
@@ -107,20 +123,23 @@ fun AppNavigation(
             pe.pixelstudio.pixelerp.ui.productos.grupos.ConfiguracionCamposScreen(
                 grupoId = grupoId,
                 viewModel = grupoViewModel,
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onLogout = { loginViewModel.logout() }
             )
         }
         composable(Screen.ProductosLista.route) {
             pe.pixelstudio.pixelerp.ui.productos.lista.ProductoListScreen(
                 viewModel = productoViewModel,
                 onAddProducto = { navController.navigate(Screen.ProductoForm.route) },
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onLogout = { loginViewModel.logout() }
             )
         }
         composable(Screen.ProductoForm.route) {
             pe.pixelstudio.pixelerp.ui.productos.lista.ProductoFormScreen(
                 viewModel = productoViewModel,
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onLogout = { loginViewModel.logout() }
             )
         }
     }
