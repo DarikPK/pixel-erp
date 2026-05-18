@@ -11,7 +11,7 @@ data class Negocio(
     val razonSocial: String = "",
     val ruc: String = "",
     val direccion: String = "",
-    val telefono: String = "",
+    val celular: String = "",
     val correo: String = "",
     val logoUrl: String = "",
     val colorPrincipal: String = "#6200EE",

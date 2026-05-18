@@ -30,6 +30,10 @@ class SuperAdminViewModel(private val repository: FirebaseRepository) : ViewMode
     }
 
     fun crearNegocio(negocio: Negocio, adminUser: String, adminPass: String, onExito: () -> Unit) {
+        if (adminUser.isBlank() || adminPass.isBlank()) {
+            error = "Debe proporcionar usuario y contraseña para el administrador"
+            return
+        }
         viewModelScope.launch {
             estaCargando = true
             try {

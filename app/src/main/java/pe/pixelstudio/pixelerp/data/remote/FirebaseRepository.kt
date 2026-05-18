@@ -48,7 +48,9 @@ class FirebaseRepository {
     }
 
     suspend fun actualizarEstadoNegocio(negocioId: String, activo: Boolean) {
-        negociosCollection.document(negocioId).update("activo", activo).await()
+        if (negocioId.isNotEmpty()) {
+            negociosCollection.document(negocioId).update("activo", activo).await()
+        }
     }
 
     suspend fun actualizarNegocio(negocio: Negocio) {
