@@ -21,6 +21,7 @@ sealed class Screen(val route: String) {
     object Dashboard : Screen("dashboard")
     object SuperAdminNegocios : Screen("sa_negocios")
     object SuperAdminCrearNegocio : Screen("sa_crear_negocio")
+    object SuperAdminEditarNegocio : Screen("sa_editar_negocio")
     object ProductosMenu : Screen("productos_menu")
     object GruposLista : Screen("grupos_lista")
     object GruposForm : Screen("grupos_form")
@@ -78,7 +79,22 @@ fun AppNavigation(
             NegocioListScreen(
                 viewModel = superAdminViewModel,
                 onCrearNegocio = { navController.navigate(Screen.SuperAdminCrearNegocio.route) },
-                onEditarNegocio = { /* TODO */ },
+                onEditarNegocio = { negocio ->
+                    superAdminViewModel.negocioSeleccionado = negocio
+                    navController.navigate(Screen.SuperAdminEditarNegocio.route)
+                },
+                onIngresarNegocio = { negocio ->
+                    loginViewModel.negocioActual = negocio
+                    navController.navigate(Screen.Dashboard.route)
+                },
+                onBack = { navController.popBackStack() },
+                onLogout = { loginViewModel.logout() }
+            )
+        }
+        composable(Screen.SuperAdminEditarNegocio.route) {
+            NegocioFormScreen(
+                viewModel = superAdminViewModel,
+                negocioAEditar = superAdminViewModel.negocioSeleccionado,
                 onBack = { navController.popBackStack() },
                 onLogout = { loginViewModel.logout() }
             )

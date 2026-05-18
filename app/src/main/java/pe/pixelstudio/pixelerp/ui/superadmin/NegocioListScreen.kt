@@ -8,7 +8,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,11 +24,34 @@ fun NegocioListScreen(
     viewModel: SuperAdminViewModel,
     onCrearNegocio: () -> Unit,
     onEditarNegocio: (Negocio) -> Unit,
+    onIngresarNegocio: (Negocio) -> Unit,
     onBack: () -> Unit,
     onLogout: () -> Unit
 ) {
+    var negocioSeleccionadoParaOpciones by remember { mutableStateOf<Negocio?>(null) }
+
     LaunchedEffect(Unit) {
         viewModel.cargarNegocios()
+    }
+
+    if (negocioSeleccionadoParaOpciones != null) {
+        AlertDialog(
+            onDismissRequest = { negocioSeleccionadoParaOpciones = null },
+            title = { Text("Opciones de Negocio") },
+            text = { Text("Seleccione una acción para ${negocioSeleccionadoParaOpciones?.nombreComercial}") },
+            confirmButton = {
+                Button(onClick = {
+                    onIngresarNegocio(negocioSeleccionadoParaOpciones!!)
+                    negocioSeleccionadoParaOpciones = null
+                }) { Text("Ingresar") }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    onEditarNegocio(negocioSeleccionadoParaOpciones!!)
+                    negocioSeleccionadoParaOpciones = null
+                }) { Text("Editar") }
+            }
+        )
     }
 
     Scaffold(
@@ -62,7 +85,7 @@ fun NegocioListScreen(
                     NegocioItem(
                         negocio = negocio,
                         onToggleActivo = { viewModel.conmutarEstadoNegocio(negocio) },
-                        onEdit = { onEditarNegocio(negocio) }
+                        onSelect = { negocioSeleccionadoParaOpciones = negocio }
                     )
                 }
             }
@@ -74,13 +97,13 @@ fun NegocioListScreen(
 fun NegocioItem(
     negocio: Negocio,
     onToggleActivo: () -> Unit,
-    onEdit: () -> Unit
+    onSelect: () -> Unit
 ) {
     val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        onClick = onEdit
+        onClick = onSelect
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(

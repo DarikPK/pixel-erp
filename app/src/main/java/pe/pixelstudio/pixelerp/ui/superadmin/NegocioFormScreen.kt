@@ -157,7 +157,7 @@ fun NegocioFormScreen(
                     if (negocioAEditar == null) {
                         viewModel.crearNegocio(n, adminUser, adminPass, onBack)
                     } else {
-                        onBack()
+                        viewModel.actualizarNegocio(n, onBack)
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),

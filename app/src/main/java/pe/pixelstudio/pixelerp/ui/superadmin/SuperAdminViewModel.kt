@@ -13,6 +13,7 @@ import pe.pixelstudio.pixelerp.data.remote.FirebaseRepository
 
 class SuperAdminViewModel(private val repository: FirebaseRepository) : ViewModel() {
     var negocios by mutableStateOf<List<Negocio>>(emptyList())
+    var negocioSeleccionado by mutableStateOf<Negocio?>(null)
     var estaCargando by mutableStateOf(false)
     var error by mutableStateOf<String?>(null)
 
@@ -63,6 +64,21 @@ class SuperAdminViewModel(private val repository: FirebaseRepository) : ViewMode
                 cargarNegocios()
             } catch (e: Exception) {
                 error = e.message
+            }
+        }
+    }
+
+    fun actualizarNegocio(negocio: Negocio, onExito: () -> Unit) {
+        viewModelScope.launch {
+            estaCargando = true
+            try {
+                repository.actualizarNegocio(negocio)
+                cargarNegocios()
+                onExito()
+            } catch (e: Exception) {
+                error = e.message
+            } finally {
+                estaCargando = false
             }
         }
     }

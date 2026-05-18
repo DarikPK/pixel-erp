@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import pe.pixelstudio.pixelerp.data.model.Negocio
 import pe.pixelstudio.pixelerp.data.model.Rol
 import pe.pixelstudio.pixelerp.data.model.Usuario
+import pe.pixelstudio.pixelerp.data.model.Moneda
 import pe.pixelstudio.pixelerp.data.remote.FirebaseRepository
 
 class LoginViewModel(
@@ -102,10 +103,78 @@ class LoginViewModel(
     }
 
     fun loginMaster() {
+        val originalNombreNegocio = nombreNegocio
+        val originalUsuario = usuario
+        val originalRecordar = recordarSesion
+
         nombreNegocio = "Pixel"
         usuario = "admin"
         contrasena = "admin123"
-        onLoginClick()
+
+        // No guardamos estas credenciales en prefs para no borrar las anteriores
+        viewModelScope.launch {
+            estaCargando = true
+            error = null
+            try {
+                var negocio = firebaseRepository.getNegocioPorNombre(nombreNegocio)
+                if (negocio == null) {
+                    // Si no existe el negocio maestro "Pixel", lo creamos para facilitar pruebas
+                    val nuevoMaster = Negocio(
+                        id = "",
+                        nombreComercial = "Pixel",
+                        razonSocial = "Pixel Studio SAC",
+                        ruc = "20123456789",
+                        direccion = "Av. Digital 123",
+                        celular = "987654321",
+                        correo = "admin@pixel.pe",
+                        plan = "PRO",
+                        fechaInicioSuscripcion = System.currentTimeMillis(),
+                        fechaFinSuscripcion = System.currentTimeMillis() + 31536000000L, // 1 año
+                        activo = true,
+                        monedaPrincipal = Moneda.SOL
+                    )
+                    val adminPass = "admin123"
+                    val passwordHash = firebaseRepository.hashPassword(adminPass)
+                    val adminUsuario = Usuario(
+                        nombre = "Super Admin Pixel",
+                        usuario = "admin",
+                        passwordHash = passwordHash,
+                        rol = Rol.SUPER_ADMIN,
+                        activo = true
+                    )
+                    firebaseRepository.crearNegocio(nuevoMaster, adminUsuario)
+                    negocio = firebaseRepository.getNegocioPorNombre("Pixel")
+                }
+
+                if (negocio != null && negocio.activo) {
+                    val user = firebaseRepository.getUsuarioEnNegocio(negocio.id, usuario)
+                    if (user != null && user.activo) {
+                        val hashedPass = firebaseRepository.hashPassword(contrasena)
+                        if (user.passwordHash.trim() == hashedPass) {
+                            negocioActual = negocio
+                            usuarioActual = user
+                            loginExitoso = true
+                        } else {
+                            error = "Contraseña incorrecta"
+                        }
+                    } else {
+                        error = "Usuario no encontrado o inactivo"
+                    }
+                } else {
+                    error = "Negocio no existe o inactivo"
+                }
+            } catch (e: Exception) {
+                error = "Error: ${e.message}"
+            } finally {
+                estaCargando = false
+                // Restauramos los campos visuales a lo que estaba antes si falló
+                if (!loginExitoso) {
+                    nombreNegocio = originalNombreNegocio
+                    usuario = originalUsuario
+                    recordarSesion = originalRecordar
+                }
+            }
+        }
     }
 
     fun logout() {
