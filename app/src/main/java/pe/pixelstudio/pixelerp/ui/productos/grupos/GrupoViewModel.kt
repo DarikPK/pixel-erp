@@ -29,9 +29,31 @@ class GrupoViewModel(private val repository: ProductoRepository) : ViewModel() {
         camposTemporales.add(campo.copy(orden = camposTemporales.size))
     }
 
+    fun editarCampoTemporal(index: Int, campo: CampoProducto) {
+        if (index in camposTemporales.indices) {
+            camposTemporales[index] = campo
+        }
+    }
+
     fun removerCampoTemporal(index: Int) {
         if (index in camposTemporales.indices) {
             camposTemporales.removeAt(index)
+            // Reordenar
+            val listaNueva = camposTemporales.mapIndexed { i, c -> c.copy(orden = i) }
+            camposTemporales.clear()
+            camposTemporales.addAll(listaNueva)
+        }
+    }
+
+    fun moverCampoTemporal(index: Int, arriba: Boolean) {
+        val targetIndex = if (arriba) index - 1 else index + 1
+        if (index in camposTemporales.indices && targetIndex in camposTemporales.indices) {
+            val item = camposTemporales.removeAt(index)
+            camposTemporales.add(targetIndex, item)
+            // Actualizar ordenes
+            val listaNueva = camposTemporales.mapIndexed { i, c -> c.copy(orden = i) }
+            camposTemporales.clear()
+            camposTemporales.addAll(listaNueva)
         }
     }
 
@@ -58,6 +80,31 @@ class GrupoViewModel(private val repository: ProductoRepository) : ViewModel() {
     fun agregarCampo(campo: CampoProducto) {
         viewModelScope.launch {
             repository.insertarCampo(campo)
+        }
+    }
+
+    fun actualizarCampo(campo: CampoProducto) {
+        viewModelScope.launch {
+            repository.actualizarCampo(campo)
+        }
+    }
+
+    fun eliminarCampo(campo: CampoProducto) {
+        viewModelScope.launch {
+            repository.eliminarCampo(campo)
+        }
+    }
+
+    fun moverCampo(grupoId: Int, campo: CampoProducto, arriba: Boolean, listaActual: List<CampoProducto>) {
+        val index = listaActual.indexOfFirst { it.id == campo.id }
+        val targetIndex = if (arriba) index - 1 else index + 1
+
+        if (index != -1 && targetIndex in listaActual.indices) {
+            viewModelScope.launch {
+                val targetCampo = listaActual[targetIndex]
+                repository.actualizarCampo(campo.copy(orden = targetCampo.orden))
+                repository.actualizarCampo(targetCampo.copy(orden = campo.orden))
+            }
         }
     }
 

@@ -37,6 +37,10 @@ class ProductoRepository(private val productoDao: ProductoDao) {
         productoDao.actualizarCampo(campo)
     }
 
+    suspend fun eliminarCampo(campo: CampoProducto) {
+        productoDao.eliminarCampo(campo)
+    }
+
     // Productos
     val todosLosProductos: Flow<List<Producto>> = productoDao.obtenerTodosLosProductos()
 

@@ -97,7 +97,7 @@ fun ProductoFormScreen(
                 OutlinedTextField(
                     value = viewModel.precioVenta,
                     onValueChange = { viewModel.precioVenta = it },
-                    label = { Text("Precio de Venta") },
+                    label = { Text("Precio de Venta (Opcional)") },
                     modifier = Modifier.fillMaxWidth()
                 )
 

@@ -26,6 +26,9 @@ interface ProductoDao {
     @Update
     suspend fun actualizarCampo(campo: CampoProducto)
 
+    @Delete
+    suspend fun eliminarCampo(campo: CampoProducto)
+
     // Productos
     @Query("SELECT * FROM productos ORDER BY nombre ASC")
     fun obtenerTodosLosProductos(): Flow<List<Producto>>

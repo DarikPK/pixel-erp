@@ -116,7 +116,9 @@ fun GrupoFormScreen(
             itemsIndexed(viewModel.camposTemporales) { index, campo ->
                 CampoTemporalItem(
                     campo = campo,
-                    onRemove = { viewModel.removerCampoTemporal(index) }
+                    onRemove = { viewModel.removerCampoTemporal(index) },
+                    onMoveUp = { viewModel.moverCampoTemporal(index, true) },
+                    onMoveDown = { viewModel.moverCampoTemporal(index, false) }
                 )
             }
         }
@@ -144,7 +146,12 @@ fun GrupoFormScreen(
 }
 
 @Composable
-fun CampoTemporalItem(campo: CampoProducto, onRemove: () -> Unit) {
+fun CampoTemporalItem(
+    campo: CampoProducto,
+    onRemove: () -> Unit,
+    onMoveUp: () -> Unit,
+    onMoveDown: () -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
@@ -169,8 +176,16 @@ fun CampoTemporalItem(campo: CampoProducto, onRemove: () -> Unit) {
                     )
                 }
             }
-            IconButton(onClick = onRemove) {
-                Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.error)
+            Row {
+                IconButton(onClick = onMoveUp) {
+                    Icon(Icons.Default.ArrowUpward, contentDescription = "Subir")
+                }
+                IconButton(onClick = onMoveDown) {
+                    Icon(Icons.Default.ArrowDownward, contentDescription = "Bajar")
+                }
+                IconButton(onClick = onRemove) {
+                    Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.error)
+                }
             }
         }
     }
