@@ -130,8 +130,7 @@ class LoginViewModel(
                         plan = "PRO",
                         fechaInicioSuscripcion = System.currentTimeMillis(),
                         fechaFinSuscripcion = System.currentTimeMillis() + 31536000000L, // 1 año
-                        activo = true,
-                        monedaPrincipal = Moneda.SOL
+                        activo = true
                     )
                     val adminPass = "admin123"
                     val passwordHash = firebaseRepository.hashPassword(adminPass)
