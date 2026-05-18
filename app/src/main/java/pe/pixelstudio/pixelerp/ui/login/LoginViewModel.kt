@@ -7,13 +7,17 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import pe.pixelstudio.pixelerp.data.repository.UsuarioRepository
+import pe.pixelstudio.pixelerp.data.model.Negocio
+import pe.pixelstudio.pixelerp.data.model.Rol
+import pe.pixelstudio.pixelerp.data.model.Usuario
+import pe.pixelstudio.pixelerp.data.remote.FirebaseRepository
 
 class LoginViewModel(
-    private val repository: UsuarioRepository,
+    private val firebaseRepository: FirebaseRepository,
     private val prefs: SharedPreferences
 ) : ViewModel() {
 
+    var nombreNegocio by mutableStateOf("")
     var usuario by mutableStateOf("")
     var contrasena by mutableStateOf("")
     var recordarSesion by mutableStateOf(false)
@@ -21,14 +25,21 @@ class LoginViewModel(
     var estaCargando by mutableStateOf(false)
     var loginExitoso by mutableStateOf(false)
 
+    var usuarioActual by mutableStateOf<Usuario?>(null)
+    var negocioActual by mutableStateOf<Negocio?>(null)
+
     init {
+        nombreNegocio = prefs.getString("saved_business", "") ?: ""
         usuario = prefs.getString("saved_user", "") ?: ""
-        contrasena = prefs.getString("saved_pass", "") ?: ""
         recordarSesion = prefs.getBoolean("remember_me", false)
     }
 
     fun onLoginClick() {
-        if (usuario.isBlank() || contrasena.isBlank()) {
+        val negocioInput = nombreNegocio.trim()
+        val usuarioInput = usuario.trim()
+        val contrasenaInput = contrasena.trim()
+
+        if (negocioInput.isBlank() || usuarioInput.isBlank() || contrasenaInput.isBlank()) {
             error = "Por favor, completa todos los campos"
             return
         }
@@ -37,29 +48,50 @@ class LoginViewModel(
             estaCargando = true
             error = null
 
-            val user = repository.obtenerUsuario(usuario)
+            try {
+                val negocio = firebaseRepository.getNegocioPorNombre(negocioInput)
 
-            if (user == null) {
-                error = "Usuario no encontrado"
-            } else if (!user.activo) {
-                error = "El usuario está inactivo"
-            } else if (user.contrasena != contrasena) {
-                error = "Contraseña incorrecta"
-            } else {
-                if (recordarSesion) {
-                    prefs.edit().apply {
-                        putString("saved_user", usuario)
-                        putString("saved_pass", contrasena)
-                        putBoolean("remember_me", true)
-                        apply()
-                    }
+                if (negocio == null) {
+                    error = "El negocio no existe"
+                } else if (!negocio.activo) {
+                    error = "El negocio está inactivo"
+                } else if (negocio.fechaFinSuscripcion != null && negocio.fechaFinSuscripcion < System.currentTimeMillis()) {
+                    error = "La suscripción ha expirado"
                 } else {
-                    prefs.edit().clear().apply()
-                }
-                loginExitoso = true
-            }
+                    val user = firebaseRepository.getUsuarioEnNegocio(negocio.id, usuarioInput)
 
-            estaCargando = false
+                    if (user == null) {
+                        error = "Usuario no encontrado en este negocio"
+                    } else if (!user.activo) {
+                        error = "El usuario está inactivo"
+                    } else {
+                        val hashedPass = firebaseRepository.hashPassword(contrasenaInput)
+                        if (user.passwordHash.trim() != hashedPass) {
+                            error = "Contraseña incorrecta"
+                        } else {
+                            // Login Exitoso
+                            negocioActual = negocio
+                            usuarioActual = user
+
+                            if (recordarSesion) {
+                                prefs.edit().apply {
+                                    putString("saved_business", nombreNegocio)
+                                    putString("saved_user", usuario)
+                                    putBoolean("remember_me", true)
+                                    apply()
+                                }
+                            } else {
+                                prefs.edit().clear().apply()
+                            }
+                            loginExitoso = true
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                error = "Error: ${e.message}"
+            } finally {
+                estaCargando = false
+            }
         }
     }
 

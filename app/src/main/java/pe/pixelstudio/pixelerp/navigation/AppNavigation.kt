@@ -1,9 +1,6 @@
 package pe.pixelstudio.pixelerp.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -14,10 +11,15 @@ import pe.pixelstudio.pixelerp.ui.login.LoginScreen
 import pe.pixelstudio.pixelerp.ui.login.LoginViewModel
 import pe.pixelstudio.pixelerp.ui.productos.grupos.GrupoViewModel
 import pe.pixelstudio.pixelerp.ui.productos.lista.ProductoViewModel
+import pe.pixelstudio.pixelerp.ui.superadmin.SuperAdminViewModel
+import pe.pixelstudio.pixelerp.ui.superadmin.NegocioListScreen
+import pe.pixelstudio.pixelerp.ui.superadmin.NegocioFormScreen
 
 sealed class Screen(val route: String) {
     object Login : Screen("login")
     object Dashboard : Screen("dashboard")
+    object SuperAdminNegocios : Screen("sa_negocios")
+    object SuperAdminCrearNegocio : Screen("sa_crear_negocio")
     object ProductosMenu : Screen("productos_menu")
     object GruposLista : Screen("grupos_lista")
     object GruposForm : Screen("grupos_form")
@@ -31,6 +33,7 @@ sealed class Screen(val route: String) {
 @Composable
 fun AppNavigation(
     loginViewModel: LoginViewModel,
+    superAdminViewModel: SuperAdminViewModel,
     grupoViewModel: GrupoViewModel,
     productoViewModel: ProductoViewModel
 ) {
@@ -52,9 +55,29 @@ fun AppNavigation(
         }
         composable(Screen.Dashboard.route) {
             DashboardScreen(
-                onNavigateToProductos = { navController.navigate(Screen.ProductosMenu.route) }
+                negocio = loginViewModel.negocioActual,
+                usuario = loginViewModel.usuarioActual,
+                onNavigateToProductos = { navController.navigate(Screen.ProductosMenu.route) },
+                onNavigateToSuperAdmin = { navController.navigate(Screen.SuperAdminNegocios.route) }
             )
         }
+
+        // Super Admin
+        composable(Screen.SuperAdminNegocios.route) {
+            NegocioListScreen(
+                viewModel = superAdminViewModel,
+                onCrearNegocio = { navController.navigate(Screen.SuperAdminCrearNegocio.route) },
+                onEditarNegocio = { /* TODO */ },
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable(Screen.SuperAdminCrearNegocio.route) {
+            NegocioFormScreen(
+                viewModel = superAdminViewModel,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
         composable(Screen.ProductosMenu.route) {
             pe.pixelstudio.pixelerp.ui.productos.ProductosMenuScreen(
                 onNavigateToGrupos = { navController.navigate(Screen.GruposLista.route) },
