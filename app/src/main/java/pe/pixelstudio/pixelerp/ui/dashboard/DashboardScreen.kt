@@ -64,7 +64,7 @@ fun DashboardScreen(
                     Text(text = "Sesión de: ${usuario?.nombre ?: "Usuario"}", style = MaterialTheme.typography.titleMedium)
                     Text(text = "Rol: ${usuario?.rol ?: "N/A"}", style = MaterialTheme.typography.bodyMedium)
 
-                    if (usuario?.rol != Rol.SUPER_ADMIN) {
+                    if (usuario?.rol == Rol.ADMINISTRADOR) {
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = "Suscripción válida hasta: ${negocio?.fechaFinSuscripcion?.let { sdf.format(Date(it)) } ?: "Indefinida"}",
