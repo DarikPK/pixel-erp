@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
@@ -27,6 +28,7 @@ fun DashboardScreen(
     usuario: Usuario?,
     onNavigateToProductos: () -> Unit,
     onNavigateToSuperAdmin: () -> Unit,
+    onNavigateToUsuarios: () -> Unit,
     onLogout: () -> Unit
 ) {
     val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
@@ -93,12 +95,33 @@ fun DashboardScreen(
                         modifier = Modifier.weight(1f),
                         onClick = onNavigateToProductos
                     )
+
+                    if (usuario?.rol == Rol.ADMINISTRADOR) {
+                        DashboardCard(
+                            title = "Personal",
+                            icon = Icons.Default.Group,
+                            modifier = Modifier.weight(1f),
+                            onClick = onNavigateToUsuarios
+                        )
+                    } else {
+                        Box(modifier = Modifier.weight(1f))
+                    }
+                }
+            }
+
+            if (usuario?.rol == Rol.ADMINISTRADOR) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
                     DashboardCard(
                         title = "Configuración",
                         icon = Icons.Default.Settings,
                         modifier = Modifier.weight(1f),
                         onClick = { /* TODO */ }
                     )
+                    Box(modifier = Modifier.weight(1f))
                 }
             }
         }

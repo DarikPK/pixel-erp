@@ -121,7 +121,7 @@ fun NegocioFormScreen(
 
             if (negocioAEditar == null) {
                 HorizontalDivider()
-                Text("Usuario Administrador Inicial", style = MaterialTheme.typography.titleMedium)
+                Text("Usuario Administrador", style = MaterialTheme.typography.titleMedium)
                 OutlinedTextField(value = adminUser, onValueChange = { adminUser = it }, label = { Text("Usuario Admin") }, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(value = adminPass, onValueChange = { adminPass = it }, label = { Text("Contraseña Admin") }, modifier = Modifier.fillMaxWidth())
             }

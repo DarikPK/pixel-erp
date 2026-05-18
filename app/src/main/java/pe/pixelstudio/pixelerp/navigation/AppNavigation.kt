@@ -15,6 +15,9 @@ import pe.pixelstudio.pixelerp.ui.productos.lista.ProductoViewModel
 import pe.pixelstudio.pixelerp.ui.superadmin.SuperAdminViewModel
 import pe.pixelstudio.pixelerp.ui.superadmin.NegocioListScreen
 import pe.pixelstudio.pixelerp.ui.superadmin.NegocioFormScreen
+import pe.pixelstudio.pixelerp.ui.usuarios.UsuarioViewModel
+import pe.pixelstudio.pixelerp.ui.usuarios.UsuarioListScreen
+import pe.pixelstudio.pixelerp.ui.usuarios.UsuarioFormScreen
 
 sealed class Screen(val route: String) {
     object Login : Screen("login")
@@ -30,6 +33,8 @@ sealed class Screen(val route: String) {
     }
     object ProductosLista : Screen("productos_lista")
     object ProductoForm : Screen("producto_form")
+    object UsuariosLista : Screen("usuarios_lista")
+    object UsuarioForm : Screen("usuario_form")
 }
 
 @Composable
@@ -37,7 +42,8 @@ fun AppNavigation(
     loginViewModel: LoginViewModel,
     superAdminViewModel: SuperAdminViewModel,
     grupoViewModel: GrupoViewModel,
-    productoViewModel: ProductoViewModel
+    productoViewModel: ProductoViewModel,
+    usuarioViewModel: UsuarioViewModel
 ) {
     val navController = rememberNavController()
 
@@ -70,6 +76,7 @@ fun AppNavigation(
                 usuario = loginViewModel.usuarioActual,
                 onNavigateToProductos = { navController.navigate(Screen.ProductosMenu.route) },
                 onNavigateToSuperAdmin = { navController.navigate(Screen.SuperAdminNegocios.route) },
+                onNavigateToUsuarios = { navController.navigate(Screen.UsuariosLista.route) },
                 onLogout = { loginViewModel.logout() }
             )
         }
@@ -109,6 +116,7 @@ fun AppNavigation(
 
         composable(Screen.ProductosMenu.route) {
             pe.pixelstudio.pixelerp.ui.productos.ProductosMenuScreen(
+                usuario = loginViewModel.usuarioActual,
                 onNavigateToGrupos = { navController.navigate(Screen.GruposLista.route) },
                 onNavigateToLista = { navController.navigate(Screen.ProductosLista.route) },
                 onBack = { navController.popBackStack() },
@@ -154,6 +162,32 @@ fun AppNavigation(
         composable(Screen.ProductoForm.route) {
             pe.pixelstudio.pixelerp.ui.productos.lista.ProductoFormScreen(
                 viewModel = productoViewModel,
+                onBack = { navController.popBackStack() },
+                onLogout = { loginViewModel.logout() }
+            )
+        }
+
+        composable(Screen.UsuariosLista.route) {
+            UsuarioListScreen(
+                viewModel = usuarioViewModel,
+                negocioId = loginViewModel.negocioActual?.id ?: "",
+                onAddUsuario = {
+                    usuarioViewModel.limpiarFormulario()
+                    navController.navigate(Screen.UsuarioForm.route)
+                },
+                onEditUsuario = { u ->
+                    usuarioViewModel.prepararEdicion(u)
+                    navController.navigate(Screen.UsuarioForm.route)
+                },
+                onBack = { navController.popBackStack() },
+                onLogout = { loginViewModel.logout() }
+            )
+        }
+
+        composable(Screen.UsuarioForm.route) {
+            UsuarioFormScreen(
+                viewModel = usuarioViewModel,
+                negocioId = loginViewModel.negocioActual?.id ?: "",
                 onBack = { navController.popBackStack() },
                 onLogout = { loginViewModel.logout() }
             )

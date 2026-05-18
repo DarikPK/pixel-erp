@@ -40,7 +40,7 @@ class SuperAdminViewModel(private val repository: FirebaseRepository) : ViewMode
             try {
                 val passwordHash = repository.hashPassword(adminPass)
                 val adminUsuario = Usuario(
-                    nombre = "Administrador Inicial",
+                    nombre = "Administrador",
                     usuario = adminUser,
                     passwordHash = passwordHash,
                     rol = Rol.ADMINISTRADOR,
