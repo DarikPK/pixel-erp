@@ -19,7 +19,7 @@ import pe.pixelstudio.pixelerp.data.model.*
         Producto::class,
         ValorCampoProducto::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

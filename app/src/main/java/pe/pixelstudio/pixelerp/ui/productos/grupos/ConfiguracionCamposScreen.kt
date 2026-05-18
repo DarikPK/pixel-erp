@@ -131,6 +131,7 @@ fun AgregarCampoDialog(
     var obligatorio by remember { mutableStateOf(false) }
     var prefijo by remember { mutableStateOf("") }
     var sufijo by remember { mutableStateOf("") }
+    var opcionesTexto by remember { mutableStateOf("") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -171,10 +172,26 @@ fun AgregarCampoDialog(
                     label = { Text("Sufijo (ej. Kg)") },
                     modifier = Modifier.fillMaxWidth()
                 )
+
+                if (tipoDato == TipoDato.LISTA || tipoDato == TipoDato.ENTERO_LISTA) {
+                    HorizontalDivider()
+                    Text("Opciones de la lista (separadas por comas)", style = MaterialTheme.typography.labelLarge)
+                    OutlinedTextField(
+                        value = opcionesTexto,
+                        onValueChange = { opcionesTexto = it },
+                        placeholder = { Text("ej. Mg, G, Kg o Paracetamol, Ibuprofeno") },
+                        modifier = Modifier.fillMaxWidth(),
+                        minLines = 2
+                    )
+                }
             }
         },
         confirmButton = {
             Button(onClick = {
+                val opciones = if (opcionesTexto.isNotBlank()) {
+                    opcionesTexto.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                } else null
+
                 onConfirm(
                     CampoProducto(
                         grupoProductoId = 0,
@@ -184,7 +201,8 @@ fun AgregarCampoDialog(
                         orden = 0,
                         esPredefinido = false,
                         prefijo = prefijo.ifBlank { null },
-                        sufijo = sufijo.ifBlank { null }
+                        sufijo = sufijo.ifBlank { null },
+                        opcionesLista = opciones
                     )
                 )
             }) { Text("Agregar") }

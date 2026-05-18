@@ -8,7 +8,8 @@ enum class TipoDato {
     MONEDA,
     FECHA,
     BOOLEANO,
-    LISTA
+    LISTA,
+    ENTERO_LISTA
 }
 
 enum class Moneda {

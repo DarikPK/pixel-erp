@@ -135,6 +135,7 @@ fun ProductoFormScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DynamicFormField(
     campo: CampoProducto,
@@ -142,22 +143,105 @@ fun DynamicFormField(
     onValueChange: (Any) -> Unit
 ) {
     val keyboardType = when (campo.tipoDato) {
-        TipoDato.ENTERO, TipoDato.DECIMAL, TipoDato.MONEDA -> androidx.compose.ui.text.input.KeyboardType.Number
+        TipoDato.ENTERO, TipoDato.DECIMAL, TipoDato.MONEDA, TipoDato.ENTERO_LISTA -> androidx.compose.ui.text.input.KeyboardType.Number
         TipoDato.FECHA -> androidx.compose.ui.text.input.KeyboardType.Number
         else -> androidx.compose.ui.text.input.KeyboardType.Text
     }
 
-    OutlinedTextField(
-        value = valor.toString(),
-        onValueChange = { onValueChange(it) },
-        label = { Text(campo.nombreCampo) },
-        modifier = Modifier.fillMaxWidth(),
-        prefix = if (campo.prefijo != null) { { Text(campo.prefijo) } } else null,
-        suffix = if (campo.sufijo != null) { { Text(campo.sufijo) } } else null,
-        supportingText = {
-            if (campo.obligatorio) Text("Obligatorio", color = MaterialTheme.colorScheme.error)
-        },
-        isError = campo.obligatorio && valor.toString().isBlank(),
-        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = keyboardType)
-    )
+    when (campo.tipoDato) {
+        TipoDato.LISTA -> {
+            var expanded by remember { mutableStateOf(false) }
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded }
+            ) {
+                OutlinedTextField(
+                    value = valor.toString(),
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text(campo.nombreCampo) },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    modifier = Modifier.fillMaxWidth().menuAnchor(),
+                    isError = campo.obligatorio && valor.toString().isBlank()
+                )
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    campo.opcionesLista?.forEach { opcion ->
+                        DropdownMenuItem(
+                            text = { Text(opcion) },
+                            onClick = {
+                                onValueChange(opcion)
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
+        }
+        TipoDato.ENTERO_LISTA -> {
+            // Valor esperado: "numero|opcion"
+            val partes = valor.toString().split("|")
+            val numero = partes.getOrNull(0) ?: ""
+            val opcionSeleccionada = partes.getOrNull(1) ?: ""
+
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = numero,
+                    onValueChange = { onValueChange("$it|$opcionSeleccionada") },
+                    label = { Text(campo.nombreCampo) },
+                    modifier = Modifier.weight(1f),
+                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = keyboardType),
+                    isError = campo.obligatorio && numero.isBlank()
+                )
+
+                var expanded by remember { mutableStateOf(false) }
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = !expanded },
+                    modifier = Modifier.weight(0.8f)
+                ) {
+                    OutlinedTextField(
+                        value = opcionSeleccionada,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Unidad") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                        modifier = Modifier.menuAnchor(),
+                        isError = campo.obligatorio && opcionSeleccionada.isBlank()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        campo.opcionesLista?.forEach { opcion ->
+                            DropdownMenuItem(
+                                text = { Text(opcion) },
+                                onClick = {
+                                    onValueChange("$numero|$opcion")
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        else -> {
+            OutlinedTextField(
+                value = valor.toString(),
+                onValueChange = { onValueChange(it) },
+                label = { Text(campo.nombreCampo) },
+                modifier = Modifier.fillMaxWidth(),
+                prefix = if (campo.prefijo != null) { { Text(campo.prefijo) } } else null,
+                suffix = if (campo.sufijo != null) { { Text(campo.sufijo) } } else null,
+                supportingText = {
+                    if (campo.obligatorio) Text("Obligatorio", color = MaterialTheme.colorScheme.error)
+                },
+                isError = campo.obligatorio && valor.toString().isBlank(),
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = keyboardType)
+            )
+        }
+    }
 }
