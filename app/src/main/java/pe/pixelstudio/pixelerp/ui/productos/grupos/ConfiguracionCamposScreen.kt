@@ -62,7 +62,7 @@ fun ConfiguracionCamposScreen(
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "• Nombre\n• Precio de venta",
+                text = "• Nombre",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.padding(vertical = 8.dp)

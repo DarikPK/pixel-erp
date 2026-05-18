@@ -100,7 +100,6 @@ fun GrupoFormScreen(
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text("Campos Obligatorios del Sistema:", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
                         Text("• Nombre del Producto", style = MaterialTheme.typography.bodySmall)
-                        Text("• Precio de venta", style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }
