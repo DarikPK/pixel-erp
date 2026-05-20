@@ -28,6 +28,25 @@ class FirebaseRepository {
         return query.documents.firstOrNull()?.toObject(Usuario::class.java)
     }
 
+    suspend fun obtenerUsuariosPorNegocio(negocioId: String): List<Usuario> {
+        val query = negociosCollection.document(negocioId)
+            .collection("usuarios")
+            .get().await()
+        return query.toObjects(Usuario::class.java)
+    }
+
+    suspend fun crearUsuarioEnNegocio(negocioId: String, usuario: Usuario) {
+        val docRef = negociosCollection.document(negocioId).collection("usuarios").document()
+        val nuevoUsuario = usuario.copy(id = docRef.id)
+        docRef.set(nuevoUsuario).await()
+    }
+
+    suspend fun actualizarUsuarioEnNegocio(negocioId: String, usuario: Usuario) {
+        if (usuario.id.isNotEmpty()) {
+            negociosCollection.document(negocioId).collection("usuarios").document(usuario.id).set(usuario).await()
+        }
+    }
+
     suspend fun crearNegocio(negocio: Negocio, adminUsuario: Usuario): String {
         val docRef = negociosCollection.document()
         val id = docRef.id

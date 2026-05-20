@@ -6,6 +6,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -19,7 +20,8 @@ import java.util.*
 fun NegocioFormScreen(
     viewModel: SuperAdminViewModel,
     negocioAEditar: Negocio? = null,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onLogout: () -> Unit
 ) {
     var nombreComercial by remember { mutableStateOf(negocioAEditar?.nombreComercial ?: "") }
     var razonSocial by remember { mutableStateOf(negocioAEditar?.razonSocial ?: "") }
@@ -47,6 +49,11 @@ fun NegocioFormScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onLogout) {
+                        Icon(Icons.Default.ExitToApp, contentDescription = "Cerrar Sesión")
                     }
                 }
             )
@@ -114,7 +121,7 @@ fun NegocioFormScreen(
 
             if (negocioAEditar == null) {
                 HorizontalDivider()
-                Text("Usuario Administrador Inicial", style = MaterialTheme.typography.titleMedium)
+                Text("Usuario Administrador", style = MaterialTheme.typography.titleMedium)
                 OutlinedTextField(value = adminUser, onValueChange = { adminUser = it }, label = { Text("Usuario Admin") }, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(value = adminPass, onValueChange = { adminPass = it }, label = { Text("Contraseña Admin") }, modifier = Modifier.fillMaxWidth())
             }
@@ -150,7 +157,7 @@ fun NegocioFormScreen(
                     if (negocioAEditar == null) {
                         viewModel.crearNegocio(n, adminUser, adminPass, onBack)
                     } else {
-                        onBack()
+                        viewModel.actualizarNegocio(n, onBack)
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),

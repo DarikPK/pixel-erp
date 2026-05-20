@@ -23,7 +23,8 @@ import pe.pixelstudio.pixelerp.data.model.Moneda
 @Composable
 fun GrupoFormScreen(
     viewModel: GrupoViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onLogout: () -> Unit
 ) {
     var showAddDialog by remember { mutableStateOf(false) }
     var showPredefinedDialog by remember { mutableStateOf(false) }
@@ -40,6 +41,9 @@ fun GrupoFormScreen(
                 actions = {
                     TextButton(onClick = { viewModel.guardarGrupo(onBack) }) {
                         Text("GUARDAR", fontWeight = FontWeight.Bold)
+                    }
+                    IconButton(onClick = onLogout) {
+                        Icon(Icons.Default.ExitToApp, contentDescription = "Cerrar Sesión")
                     }
                 }
             )
@@ -96,7 +100,6 @@ fun GrupoFormScreen(
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text("Campos Obligatorios del Sistema:", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
                         Text("• Nombre del Producto", style = MaterialTheme.typography.bodySmall)
-                        Text("• Precio de venta", style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }
@@ -112,7 +115,9 @@ fun GrupoFormScreen(
             itemsIndexed(viewModel.camposTemporales) { index, campo ->
                 CampoTemporalItem(
                     campo = campo,
-                    onRemove = { viewModel.removerCampoTemporal(index) }
+                    onRemove = { viewModel.removerCampoTemporal(index) },
+                    onMoveUp = { viewModel.moverCampoTemporal(index, true) },
+                    onMoveDown = { viewModel.moverCampoTemporal(index, false) }
                 )
             }
         }
@@ -140,7 +145,12 @@ fun GrupoFormScreen(
 }
 
 @Composable
-fun CampoTemporalItem(campo: CampoProducto, onRemove: () -> Unit) {
+fun CampoTemporalItem(
+    campo: CampoProducto,
+    onRemove: () -> Unit,
+    onMoveUp: () -> Unit,
+    onMoveDown: () -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
@@ -165,8 +175,16 @@ fun CampoTemporalItem(campo: CampoProducto, onRemove: () -> Unit) {
                     )
                 }
             }
-            IconButton(onClick = onRemove) {
-                Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.error)
+            Row {
+                IconButton(onClick = onMoveUp) {
+                    Icon(Icons.Default.ArrowUpward, contentDescription = "Subir")
+                }
+                IconButton(onClick = onMoveDown) {
+                    Icon(Icons.Default.ArrowDownward, contentDescription = "Bajar")
+                }
+                IconButton(onClick = onRemove) {
+                    Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.error)
+                }
             }
         }
     }

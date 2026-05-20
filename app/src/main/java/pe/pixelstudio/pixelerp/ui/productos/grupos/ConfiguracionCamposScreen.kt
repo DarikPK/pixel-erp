@@ -6,8 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,10 +23,12 @@ import pe.pixelstudio.pixelerp.data.model.Moneda
 fun ConfiguracionCamposScreen(
     grupoId: Int,
     viewModel: GrupoViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onLogout: () -> Unit
 ) {
     val campos by viewModel.obtenerCampos(grupoId).collectAsState()
     var showDialog by remember { mutableStateOf(false) }
+    var campoAEditar by remember { mutableStateOf<CampoProducto?>(null) }
 
     Scaffold(
         topBar = {
@@ -37,11 +38,19 @@ fun ConfiguracionCamposScreen(
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
                     }
+                },
+                actions = {
+                    IconButton(onClick = onLogout) {
+                        Icon(Icons.Default.ExitToApp, contentDescription = "Cerrar Sesión")
+                    }
                 }
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { showDialog = true }) {
+            FloatingActionButton(onClick = {
+                campoAEditar = null
+                showDialog = true
+            }) {
                 Icon(Icons.Default.Add, contentDescription = "Agregar Campo")
             }
         }
@@ -53,7 +62,7 @@ fun ConfiguracionCamposScreen(
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "• Nombre\n• Precio de venta",
+                text = "• Nombre",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.padding(vertical = 8.dp)
@@ -73,7 +82,16 @@ fun ConfiguracionCamposScreen(
             } else {
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(campos) { campo ->
-                        CampoItem(campo)
+                        CampoItem(
+                            campo = campo,
+                            onEdit = {
+                                campoAEditar = campo
+                                showDialog = true
+                            },
+                            onDelete = { viewModel.eliminarCampo(campo) },
+                            onMoveUp = { viewModel.moverCampo(grupoId, campo, true, campos) },
+                            onMoveDown = { viewModel.moverCampo(grupoId, campo, false, campos) }
+                        )
                     }
                 }
             }
@@ -81,9 +99,14 @@ fun ConfiguracionCamposScreen(
 
         if (showDialog) {
             AgregarCampoDialog(
+                campoExistente = campoAEditar,
                 onDismiss = { showDialog = false },
-                onConfirm = { nuevoCampo ->
-                    viewModel.agregarCampo(nuevoCampo.copy(grupoProductoId = grupoId))
+                onConfirm = { campo ->
+                    if (campo.id == 0) {
+                        viewModel.agregarCampo(campo.copy(grupoProductoId = grupoId, orden = campos.size))
+                    } else {
+                        viewModel.actualizarCampo(campo)
+                    }
                     showDialog = false
                 }
             )
@@ -92,7 +115,13 @@ fun ConfiguracionCamposScreen(
 }
 
 @Composable
-fun CampoItem(campo: CampoProducto) {
+fun CampoItem(
+    campo: CampoProducto,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+    onMoveUp: () -> Unit,
+    onMoveDown: () -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
@@ -102,12 +131,24 @@ fun CampoItem(campo: CampoProducto) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(text = campo.nombreCampo, fontWeight = FontWeight.Bold)
                 Text(text = "${campo.tipoDato} • ${if (campo.obligatorio) "Obligatorio" else "Opcional"}", style = MaterialTheme.typography.labelSmall)
             }
-            if (campo.esPredefinido) {
-                SuggestionChip(onClick = {}, label = { Text("Predefinido") })
+
+            Row {
+                IconButton(onClick = onMoveUp) {
+                    Icon(Icons.Default.ArrowUpward, contentDescription = "Subir", modifier = Modifier.size(20.dp))
+                }
+                IconButton(onClick = onMoveDown) {
+                    Icon(Icons.Default.ArrowDownward, contentDescription = "Bajar", modifier = Modifier.size(20.dp))
+                }
+                IconButton(onClick = onEdit) {
+                    Icon(Icons.Default.Edit, contentDescription = "Editar", modifier = Modifier.size(20.dp))
+                }
+                IconButton(onClick = onDelete) {
+                    Icon(Icons.Default.Delete, contentDescription = "Eliminar", modifier = Modifier.size(20.dp), tint = MaterialTheme.colorScheme.error)
+                }
             }
         }
     }
@@ -116,14 +157,16 @@ fun CampoItem(campo: CampoProducto) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AgregarCampoDialog(
+    campoExistente: CampoProducto? = null,
     onDismiss: () -> Unit,
     onConfirm: (CampoProducto) -> Unit
 ) {
-    var nombre by remember { mutableStateOf("") }
-    var tipoDato by remember { mutableStateOf(TipoDato.TEXTO) }
-    var obligatorio by remember { mutableStateOf(false) }
-    var prefijo by remember { mutableStateOf("") }
-    var sufijo by remember { mutableStateOf("") }
+    var nombre by remember { mutableStateOf(campoExistente?.nombreCampo ?: "") }
+    var tipoDato by remember { mutableStateOf(campoExistente?.tipoDato ?: TipoDato.TEXTO) }
+    var obligatorio by remember { mutableStateOf(campoExistente?.obligatorio ?: false) }
+    var prefijo by remember { mutableStateOf(campoExistente?.prefijo ?: "") }
+    var sufijo by remember { campoExistente?.sufijo?.let { mutableStateOf(it) } ?: mutableStateOf("") }
+    var opcionesTexto by remember { mutableStateOf(campoExistente?.opcionesLista?.joinToString(", ") ?: "") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -164,23 +207,41 @@ fun AgregarCampoDialog(
                     label = { Text("Sufijo (ej. Kg)") },
                     modifier = Modifier.fillMaxWidth()
                 )
+
+                if (tipoDato == TipoDato.LISTA || tipoDato == TipoDato.ENTERO_LISTA) {
+                    HorizontalDivider()
+                    Text("Opciones de la lista (separadas por comas)", style = MaterialTheme.typography.labelLarge)
+                    OutlinedTextField(
+                        value = opcionesTexto,
+                        onValueChange = { opcionesTexto = it },
+                        placeholder = { Text("ej. Mg, G, Kg o Paracetamol, Ibuprofeno") },
+                        modifier = Modifier.fillMaxWidth(),
+                        minLines = 2
+                    )
+                }
             }
         },
         confirmButton = {
             Button(onClick = {
+                val opciones = if (opcionesTexto.isNotBlank()) {
+                    opcionesTexto.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                } else null
+
                 onConfirm(
                     CampoProducto(
-                        grupoProductoId = 0,
+                        id = campoExistente?.id ?: 0,
+                        grupoProductoId = campoExistente?.grupoProductoId ?: 0,
                         nombreCampo = nombre,
                         tipoDato = tipoDato,
                         obligatorio = obligatorio,
-                        orden = 0,
-                        esPredefinido = false,
+                        orden = campoExistente?.orden ?: 0,
+                        esPredefinido = campoExistente?.esPredefinido ?: false,
                         prefijo = prefijo.ifBlank { null },
-                        sufijo = sufijo.ifBlank { null }
+                        sufijo = sufijo.ifBlank { null },
+                        opcionesLista = opciones
                     )
                 )
-            }) { Text("Agregar") }
+            }) { Text(if (campoExistente == null) "Agregar" else "Guardar") }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } }
     )

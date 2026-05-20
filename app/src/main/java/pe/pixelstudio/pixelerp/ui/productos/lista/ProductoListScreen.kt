@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,7 +22,8 @@ import pe.pixelstudio.pixelerp.data.model.Producto
 fun ProductoListScreen(
     viewModel: ProductoViewModel,
     onAddProducto: () -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onLogout: () -> Unit
 ) {
     val productos by viewModel.productos.collectAsState()
     val busqueda by viewModel.busqueda.collectAsState()
@@ -33,6 +35,11 @@ fun ProductoListScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onLogout) {
+                        Icon(Icons.Default.ExitToApp, contentDescription = "Cerrar Sesión")
                     }
                 }
             )

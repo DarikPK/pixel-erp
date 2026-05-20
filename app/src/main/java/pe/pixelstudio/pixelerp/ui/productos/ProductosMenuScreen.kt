@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -14,12 +15,17 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
+import pe.pixelstudio.pixelerp.data.model.Rol
+import pe.pixelstudio.pixelerp.data.model.Usuario
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductosMenuScreen(
+    usuario: Usuario?,
     onNavigateToGrupos: () -> Unit,
     onNavigateToLista: () -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onLogout: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -28,6 +34,11 @@ fun ProductosMenuScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onLogout) {
+                        Icon(Icons.Default.ExitToApp, contentDescription = "Cerrar Sesión")
                     }
                 }
             )
@@ -40,12 +51,15 @@ fun ProductosMenuScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            MenuOptionCard(
-                title = "Grupos de Productos",
-                subtitle = "Configura los tipos de productos y sus campos dinámicos",
-                icon = Icons.Default.Category,
-                onClick = onNavigateToGrupos
-            )
+            if (usuario?.rol == Rol.ADMINISTRADOR || usuario?.rol == Rol.SUPER_ADMIN) {
+                MenuOptionCard(
+                    title = "Grupos de Productos",
+                    subtitle = "Configura los tipos de productos y sus campos dinámicos",
+                    icon = Icons.Default.Category,
+                    onClick = onNavigateToGrupos
+                )
+            }
+
             MenuOptionCard(
                 title = "Lista de Productos",
                 subtitle = "Gestiona tu inventario y catálogo",

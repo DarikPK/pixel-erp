@@ -16,6 +16,7 @@ import pe.pixelstudio.pixelerp.ui.login.LoginViewModel
 import pe.pixelstudio.pixelerp.ui.productos.grupos.GrupoViewModel
 import pe.pixelstudio.pixelerp.ui.productos.lista.ProductoViewModel
 import pe.pixelstudio.pixelerp.ui.superadmin.SuperAdminViewModel
+import pe.pixelstudio.pixelerp.ui.usuarios.UsuarioViewModel
 import pe.pixelstudio.pixelerp.ui.theme.PixelERPTheme
 
 class MainActivity : ComponentActivity() {
@@ -39,6 +40,8 @@ class MainActivity : ComponentActivity() {
                         GrupoViewModel(productoRepository) as T
                     modelClass.isAssignableFrom(ProductoViewModel::class.java) ->
                         ProductoViewModel(productoRepository) as T
+                    modelClass.isAssignableFrom(UsuarioViewModel::class.java) ->
+                        UsuarioViewModel(firebaseRepository) as T
                     else -> throw IllegalArgumentException("Unknown ViewModel class")
                 }
             }
@@ -48,6 +51,7 @@ class MainActivity : ComponentActivity() {
         val superAdminViewModel = ViewModelProvider(this, factory)[SuperAdminViewModel::class.java]
         val grupoViewModel = ViewModelProvider(this, factory)[GrupoViewModel::class.java]
         val productoViewModel = ViewModelProvider(this, factory)[ProductoViewModel::class.java]
+        val usuarioViewModel = ViewModelProvider(this, factory)[UsuarioViewModel::class.java]
 
         enableEdgeToEdge()
         setContent {
@@ -56,7 +60,8 @@ class MainActivity : ComponentActivity() {
                     loginViewModel = loginViewModel,
                     superAdminViewModel = superAdminViewModel,
                     grupoViewModel = grupoViewModel,
-                    productoViewModel = productoViewModel
+                    productoViewModel = productoViewModel,
+                    usuarioViewModel = usuarioViewModel
                 )
             }
         }

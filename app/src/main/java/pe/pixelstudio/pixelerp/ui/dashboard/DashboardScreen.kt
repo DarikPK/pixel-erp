@@ -4,6 +4,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Business
+import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
@@ -25,7 +27,9 @@ fun DashboardScreen(
     negocio: Negocio?,
     usuario: Usuario?,
     onNavigateToProductos: () -> Unit,
-    onNavigateToSuperAdmin: () -> Unit
+    onNavigateToSuperAdmin: () -> Unit,
+    onNavigateToUsuarios: () -> Unit,
+    onLogout: () -> Unit
 ) {
     val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
@@ -36,7 +40,12 @@ fun DashboardScreen(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                ),
+                actions = {
+                    IconButton(onClick = onLogout) {
+                        Icon(Icons.Default.ExitToApp, contentDescription = "Cerrar Sesión")
+                    }
+                }
             )
         }
     ) { paddingValues ->
@@ -55,7 +64,7 @@ fun DashboardScreen(
                     Text(text = "Sesión de: ${usuario?.nombre ?: "Usuario"}", style = MaterialTheme.typography.titleMedium)
                     Text(text = "Rol: ${usuario?.rol ?: "N/A"}", style = MaterialTheme.typography.bodyMedium)
 
-                    if (usuario?.rol != Rol.SUPER_ADMIN) {
+                    if (usuario?.rol == Rol.ADMINISTRADOR) {
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = "Suscripción válida hasta: ${negocio?.fechaFinSuscripcion?.let { sdf.format(Date(it)) } ?: "Indefinida"}",
@@ -86,12 +95,33 @@ fun DashboardScreen(
                         modifier = Modifier.weight(1f),
                         onClick = onNavigateToProductos
                     )
+
+                    if (usuario?.rol == Rol.ADMINISTRADOR) {
+                        DashboardCard(
+                            title = "Personal",
+                            icon = Icons.Default.Group,
+                            modifier = Modifier.weight(1f),
+                            onClick = onNavigateToUsuarios
+                        )
+                    } else {
+                        Box(modifier = Modifier.weight(1f))
+                    }
+                }
+            }
+
+            if (usuario?.rol == Rol.ADMINISTRADOR) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
                     DashboardCard(
                         title = "Configuración",
                         icon = Icons.Default.Settings,
                         modifier = Modifier.weight(1f),
                         onClick = { /* TODO */ }
                     )
+                    Box(modifier = Modifier.weight(1f))
                 }
             }
         }
